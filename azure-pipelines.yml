@@ -1,0 +1,43 @@
+trigger:
+- main
+
+parameters:
+  - name: 'UPN'
+    displayName: User Principal Name (someone@example.com)
+    type: string
+  - name: 'groupFilter'
+    displayName: Variable Group Filter
+    type: string
+  - name: 'roleName'
+    displayName: Role Name
+    type: string
+    default: 'Reader'
+    values:
+      - Reader
+      - User
+      - Administrator
+
+variables:
+- group: DEV_VAR_GROUP
+- name: adoOrganization
+  value: "mustafayev1988"
+- name: adoProjectName 
+  value: "ACR"
+
+pool:
+  vmImage: windows-latest
+
+steps:
+- task: PowerShell@2
+  displayName: 'Assign security roles'
+  inputs:
+    targetType: filePath
+    filePath: $(System.DefaultWorkingDirectory)\script.ps1
+    arguments: >
+      -organizationName "$(adoOrganization)"
+      -projectName "$(adoProjectName)"
+      -PAT "$(var_group_PAT)"
+      -UPN "${{parameters.UPN}}"
+      -groupFilter "${{parameters.groupFilter}}"
+      -roleName "${{parameters.roleName}}"
+  
